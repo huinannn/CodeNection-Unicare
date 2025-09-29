@@ -11,7 +11,8 @@ $admin_id = $_SESSION['admin_id'];
 
 // Get school_id of admin
 $getSchool = $dbConn->prepare("SELECT school_id FROM admin WHERE admin_id = ?");
-$getSchool->bind_param("i", $admin_id);
+$getSchool->bind_param("s", $admin_id);
+
 $getSchool->execute();
 $res = $getSchool->get_result();
 $schoolData = $res->fetch_assoc();
