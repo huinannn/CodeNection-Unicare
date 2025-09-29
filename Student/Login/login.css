@@ -277,6 +277,12 @@ html, body {
     box-sizing: border-box;
 }
 
+.input-icon select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
 .input-icon input::placeholder, .input-icon select::placeholder {
     color: #8F8F8F;
     font-size: 16px;

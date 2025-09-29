@@ -85,7 +85,7 @@
                         <input name="student_id" type="text" placeholder="Enter your student ID" value="<?= htmlspecialchars($prev_student_id) ?>">
                     </div>
                 </div>
-
+                
                 <div class="input-label">
                     <label>School Name</label>
                     <div class="input-icon">
@@ -110,8 +110,8 @@
                 </div>
 
                 <div class="button-row">
-                    <button type="submit" name="login" class="btn btn-1">Login</button>
-                    <button type="reset" class="btn btn-2">Reset</button>
+                    <button type="reset" class="btn btn-1">Reset</button>
+                    <button type="submit" name="login" class="btn btn-2">Login</button>
                 </div>
             </div>
         </form>
