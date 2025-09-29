@@ -14,10 +14,10 @@ html, body {
     font-family: var(--font-itim);
     height: 100%;
 }
-
+/* 
 body {
     overflow: hidden;
-}
+} */
 
 /* answerbook */
 .header {
@@ -26,6 +26,7 @@ body {
     padding: 25px 28px;
     font-family: var(--font-itim);
     position: fixed;
+    top: 0;
     width: 100%;
     background-color: var(--color-white);
     z-index: 999;
@@ -57,10 +58,12 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding: 50px 20px; 
+    margin-top: 50px;
+    margin-bottom: 10px;
+    padding: 40px 20px;
     overflow-y: auto; 
     -webkit-overflow-scrolling: touch; 
-    height: calc(100vh - 50px); 
+    height: 100%; 
 }
 
 .answer-card {
@@ -79,6 +82,7 @@ body {
     align-items: center;      
     position: relative;
     text-align: center;
+    overflow-y: hidden;
 }
 
 .answer-card .center-text {
@@ -255,4 +259,13 @@ body.no-scroll {
 @keyframes slideUp {
     from { transform: translateY(100%); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
+}
+
+@media(min-height: 660px) {
+    body {
+        overflow: hidden;
+    }
+    .answer-card {
+        overflow: hidden;
+    }
 }
