@@ -140,8 +140,8 @@ $query->close();
                                 <div class="counsellor" style="font-family:var(--itim);">Counselor: <?php echo $row['counselor_name']; ?></div>
                                 <div class="booking-date" style="font-family:var(--itim);">
                                     <?php echo $row['booking_date']; ?>,
-                                    <?php echo date("H:i:s", strtotime($row['booking_start_time'])); ?>
-                                    - <?php echo date("H:i:s", strtotime($row['booking_end_time'])); ?>
+                                    <?php echo date("H:i", strtotime($row['booking_start_time'])); ?>
+                                    - <?php echo date("H:i", strtotime($row['booking_end_time'])); ?>
                                 </div>
                             </div>
                             <div class="btn" style="font-family:var(--itim);">
