@@ -156,9 +156,10 @@ html, body {
 }
 
 .custom-box::after {
-    content: "✔";
-    color: var(--color-white);
-    font-size: 12px;
+    content: "";
+    width: 12px;
+    height: 12px;
+    background: url("../../image/icons/check.png") no-repeat center center / contain;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -227,6 +228,7 @@ html, body {
 }
 
 .picture {
+    margin-top: 40px;
     width: 250px;
     margin-bottom: -35px;
 }
@@ -307,7 +309,7 @@ html, body {
     justify-content: center;  
     gap: 16px;             
     width: 70%;             
-    margin: 50px auto 0 auto; 
+    margin: 50px auto 10px auto;
 }
 
 #snackbar {

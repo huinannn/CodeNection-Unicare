@@ -28,7 +28,7 @@
 
     <div class="answerbook-container">
         <div class="answer-card">
-            <div class="center-text">Answer</div>
+            <div class="center-text">Book Of Answers</div>
             <i class="fa-regular fa-heart icon icon1"></i>
             <i class="fa-regular fa-moon icon icon2"></i>
             <i class="fa-regular fa-star icon icon3"></i>
