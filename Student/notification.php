@@ -76,7 +76,7 @@
     <title>Notifications</title>
     <link rel="stylesheet" href="style.css" />
     <style>
-        body { font-family: 'Itim'; background: #FAF6F2; margin: 0; }
+        body { font-family: 'Itim'; background: #FAF6F2; margin: 0; max-width: 480px !important; }
         .notif-header {
             display: flex;
             align-items: center;
