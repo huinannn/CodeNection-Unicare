@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../HandTalk2"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "CodeNection-BuildingPhase"
+	}
+}

@@ -284,6 +284,39 @@ body {
 }
 
 /* overlay */
+#reminder-overlay {
+    position: fixed;
+    inset: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    height: 100%;
+    z-index: 2000;
+    display: none;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.reminder-sheet {
+    position: relative;
+    background: var(--color-white);
+    border-radius: 20px 20px 0 0;
+    padding: 20px;
+    text-align: center;
+    font-family: var(--font-itim);
+    box-shadow: 0 -3px 15px rgba(0,0,0,0.2); 
+}
+
+.reminder-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+    border-radius: 0;
+    z-index: -1;
+}
+
 .reminder-icon {
     font-size: 24px;
     color: #E38686;
@@ -292,14 +325,77 @@ body {
 
 .reminder-title {
     font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    font-weight: normal;
+}
+
+.reminder-line {
+    height: 1px;
+    background: rgba(0,0,0,0.1);
+    margin: 15px 0;
 }
 
 .reminder-text {
     font-size: 18px;
+    color: #333;
+    opacity: 0.9;
+    margin-bottom: 16px;
+}
+
+.btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-row {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
 }
 
 .btn {
+    width: 120px;        
+    height: 45px;         
+    line-height: 45px; 
+    border-radius: 360px;
     font-size: 16px;
+    font-family: var(--font-itim);
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.5s ease;
+    border: none; 
+}
+
+.btn-1 {
+    background: #f2ece5; 
+    color: #ae8446;    
+}
+
+.btn-2 {
+    background: #e2c19b; 
+    color: var(--color-white);
+}
+
+.btn-1:hover, .btn-2:hover {
+    color: #cd661c;
+    background: #f9e1c5;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@media(min-height: 660px) {
+    body {
+        overflow: hidden;
+    }
+    .answer-card {
+        overflow: hidden;
+    }
 }
 
 /* search */

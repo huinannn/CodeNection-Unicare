@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  	const chatKey = "unicare_chat_history";
+    const chatScrollBox = document.querySelector(".chatbot");
     const chatContainer = document.getElementById("chat-container");
     const userInput = document.getElementById("user-input");
     const sendBtn = document.getElementById("send-btn");
@@ -71,12 +71,17 @@ document.addEventListener('DOMContentLoaded', () => {
         chatContainer.innerHTML = savedChat;
     } else {
         chatContainer.innerHTML = defaultMessage();
-        chatContainer.scrollTop = chatContainer.scrollHeight;
         saveChat();
     }
 
     if (emptyChat) emptyChat.style.display = 'none';
 
+    function scrollToBottom() {
+        setTimeout(() => {
+            chatScrollBox.scrollTop = chatScrollBox.scrollHeight;
+        }, 50);
+    }
+    
     // user message
     async function sendMessage() {
         const message = userInput.value.trim();
@@ -92,8 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
         chatContainer.style.display = 'none';
         chatContainer.offsetHeight; 
         chatContainer.style.display = 'flex';
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        saveChat();
+        scrollToBottom();
+        saveChat();    
         userInput.value = "";
 
         // typing
@@ -110,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         </div>`;
         chatContainer.insertAdjacentHTML("beforeend", botTypingHTML);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        scrollToBottom();
 
         try {
             const res = await fetch('https://chatbot-cifs.onrender.com/chat-api.php', {
@@ -150,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         </div>`);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        scrollToBottom();
         saveChat();
     }
 
@@ -389,7 +394,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (dropdown) dropdown.style.display = "";
 
             const bubbles = chatContainer.querySelectorAll(".chat-bubble");
-            bubbles.forEach(b => b.innerHTML = b.textContent); 
+            bubbles.forEach(b => b.innerHTML = b.textContent);
+
+            if (inputArea) inputArea.style.display = "";
         });
     }
 });

@@ -131,7 +131,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Itim', cursive; background: #fff; margin: 0; padding-bottom: 25%; }
+        body { font-family: 'Itim', cursive; background: #fff; margin: 0; padding-bottom: 25%; max-width: 480px !important; }
         .dashboard-header {
             color: #F48C8C;
             font-size: 2rem;

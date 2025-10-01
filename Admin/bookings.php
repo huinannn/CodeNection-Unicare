@@ -11,7 +11,8 @@ $admin_id = $_SESSION['admin_id'];
 
 // Get school_id of admin
 $getSchool = $dbConn->prepare("SELECT school_id FROM admin WHERE admin_id = ?");
-$getSchool->bind_param("i", $admin_id);
+$getSchool->bind_param("s", $admin_id);
+
 $getSchool->execute();
 $res = $getSchool->get_result();
 $schoolData = $res->fetch_assoc();
@@ -139,8 +140,8 @@ $query->close();
                                 <div class="counsellor" style="font-family:var(--itim);">Counselor: <?php echo $row['counselor_name']; ?></div>
                                 <div class="booking-date" style="font-family:var(--itim);">
                                     <?php echo $row['booking_date']; ?>,
-                                    <?php echo date("H:i:s", strtotime($row['booking_start_time'])); ?>
-                                    - <?php echo date("H:i:s", strtotime($row['booking_end_time'])); ?>
+                                    <?php echo date("H:i", strtotime($row['booking_start_time'])); ?>
+                                    - <?php echo date("H:i", strtotime($row['booking_end_time'])); ?>
                                 </div>
                             </div>
                             <div class="btn" style="font-family:var(--itim);">

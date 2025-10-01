@@ -14,10 +14,6 @@ html, body {
     font-family: var(--font-itim);
     height: 100%;
 }
-/* 
-body {
-    overflow: hidden;
-} */
 
 /* answerbook */
 .header {

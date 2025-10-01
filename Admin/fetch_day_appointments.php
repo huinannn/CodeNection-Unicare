@@ -15,7 +15,7 @@ $year  = intval($_GET['year']);
 
 // find school_id
 $getSchool = $dbConn->prepare("SELECT school_id FROM admin WHERE admin_id=?");
-$getSchool->bind_param("i", $admin_id);
+$getSchool->bind_param("s", $admin_id);
 $getSchool->execute();
 $res = $getSchool->get_result();
 $school = $res->fetch_assoc();
@@ -24,8 +24,8 @@ $getSchool->close();
 
 $sql = $dbConn->prepare("
     SELECT c.counselor_name, s.student_id, s.student_name, 
-           DATE_FORMAT(b.booking_start_time, '%H:%i:%s') AS start_time,
-           DATE_FORMAT(b.booking_end_time, '%H:%i:%s')   AS end_time
+           DATE_FORMAT(b.booking_start_time, '%H:%i') AS start_time,
+           DATE_FORMAT(b.booking_end_time, '%H:%i')   AS end_time
     FROM booking b
     JOIN student s ON b.student_id = s.student_id
     JOIN counselor c ON b.counselor_id = c.counselor_id
