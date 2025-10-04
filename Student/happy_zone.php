@@ -39,6 +39,39 @@ if(isset($_SESSION['student_id'])) {
         .header_right img {
           cursor: pointer;
         }
+
+        .media-wrapper {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 1/1;
+          overflow: hidden;
+          border-radius: 10px 10px 0 0;
+        }
+
+        .media-thumb {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .icon-overlay {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          background: rgba(0,0,0,0.4);
+          border-radius: 50%;
+          padding: 6px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .icon-overlay img {
+          width: 10px !important;
+          height: 10px !important;
+          filter: invert(1);
+        }
+
     </style>
 </head>
 <body>
@@ -61,21 +94,42 @@ if(isset($_SESSION['student_id'])) {
         <?php
           if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                // decode JSON into array
                 $mediaFiles = json_decode($row['confession_post'], true);
+                $firstFile = (is_array($mediaFiles) && count($mediaFiles) > 0) ? $mediaFiles[0] : '';
 
-                // make sure it's a valid array
-                $firstFile = "";
-                if (is_array($mediaFiles) && count($mediaFiles) > 0) {
-                    $firstFile = $mediaFiles[0]; // first file only
+                // Default values
+                $isVideo = false;
+                $isAudio = false;
+                $filePath = '';
+                $fileExtension = '';
+
+                if (!empty($firstFile)) {
+                    $filePath = '../image/confessions/happy/' . htmlspecialchars($firstFile);
+                    $fileExtension = strtolower(pathinfo($firstFile, PATHINFO_EXTENSION));
+
+                    // Determine media type
+                    $isVideo = in_array($fileExtension, ['mp4', 'mov', 'webm', 'avi', 'mkv', 'gif']);
+                    $isAudio = in_array($fileExtension, ['mp3', 'wav', 'ogg', 'm4a']);
                 }
         ?>
           <div class="each_content" onclick="window.location.href='happy_zone_post.php?id=<?php echo $row['confession_id'] ?>'">
-            <?php if (!empty($firstFile)) { ?>
-              <img src="../image/confessions/happy/<?php echo htmlspecialchars($firstFile); ?>" alt="">
-            <?php } else { ?>
-              <p style="text-align:center;color:grey;">No image</p>
-            <?php } ?>
+            <div class="media-wrapper">
+              <?php if ($isVideo) { ?>
+                <video src="<?php echo $filePath; ?>" muted preload="metadata" class="media-thumb"></video>
+                <div class="icon-overlay">
+                  <img src="../image/icons/play.png" alt="play icon">
+                </div>
+              <?php } elseif ($isAudio) { ?>
+                <img src="../image/confessions/audio.png" alt="audio placeholder" class="media-thumb">
+                <div class="icon-overlay">
+                  <img src="../image/icons/audio-play.png" alt="audio icon">
+                </div>
+              <?php } elseif (!empty($firstFile)) { ?>
+                <img src="<?php echo $filePath; ?>" alt="image" class="media-thumb">
+              <?php } else { ?>
+                <img src="../image/confessions/text.png" alt="">
+              <?php } ?>
+            </div>
             <p><?php echo htmlspecialchars($row['confession_title']); ?></p>
           </div>
         <?php

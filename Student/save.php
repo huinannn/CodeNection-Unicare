@@ -49,7 +49,7 @@ if ($type === "reply") {
         if ($stmt->execute()) {
             echo json_encode(["status" => "success", "message" => "Your reply has been submitted and is awaiting admin approval."]);
         } else {
-            echo json_encode(["status" => "error", "message" => "Failed to save reply"]);
+            echo json_encode(["status" => "error", "message" => "Failed to save reply", "error" => $stmt->error]);
         }
     } else {
         echo json_encode(["status" => "error", "message" => "Empty reply"]);

@@ -129,6 +129,7 @@ body::-webkit-scrollbar {
     margin-top: 0;
     padding-top: 0;
     padding-bottom: 150px;
+    max-width: var(--max-width);
 }
 
 .confessions .header {
@@ -320,7 +321,7 @@ body::-webkit-scrollbar {
 .confessions .back {
     padding-top: 20px;
     padding-left: 10px;
-    width: 100%;
+    width: 95%;
     max-width: var(--max-width);
     position: fixed;
     top: 0;
@@ -335,7 +336,8 @@ body::-webkit-scrollbar {
 
 .confessions .media {
     margin: 60px auto 0 auto;
-    width: 100%;
+    padding: 0 20px;
+    width: 90%;
     max-width: 365px;
     aspect-ratio: 365 / 419; 
 }
@@ -348,6 +350,7 @@ body::-webkit-scrollbar {
 }
 
 .confessions .post {
+    padding: 0 20px;
     max-width: 365px;
     margin: 0 auto;
 }
@@ -365,8 +368,9 @@ body::-webkit-scrollbar {
 }
 
 .confessions .date {
+    padding: 0 20px;
     max-width: 365px;
-    width: 100%;
+    width: 90%;
     margin: 50px auto 0 auto;
 }
 
@@ -378,16 +382,18 @@ body::-webkit-scrollbar {
 }
 
 .confessions .horizontal {
-    max-width: 365px;
-    width: 100%;
+    padding: 0 20px;
+    max-width: 350px;
+    width: 90%;
     height: 3px;
     border-radius: 3px;
     background-color: #d9d9d9;
 }
 
 .confessions .all_comments {
+    padding: 0 20px;
     max-width: 365px;
-    width: 100%;
+    width: 90%;
     margin: 0 auto;
 }
 

@@ -22,7 +22,7 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        $post = $row['confession_post'];
+        $mediaFiles = json_decode($row['confession_post'], true);
         $title = $row['confession_title'];
         $msg = $row['confession_message'];
         $unformatted_date = $row['confession_date_time'];
@@ -37,10 +37,28 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
     <title>Unicare</title>
     <link rel="icon" href="../image/favicon.png" type="image/x-icon" />
     <link rel="stylesheet" href="style.css" />
     <style>
+        a[x-apple-data-detectors],
+        a[x-apple-data-detectors] *,
+        a[data-detectable="true"],
+        a[href^="tel"],
+        a[href^="mailto"],
+        a[href^="date"] {
+            color: inherit !important;
+            text-decoration: none !important;
+            cursor: default !important;
+        }
+
+        html, body {
+            max-width: var(--max-width) !important;
+            width: 100% !important;
+            overflow-x: hidden;
+        }
+
         .slider {
             position: relative;
             max-width: 365px;
@@ -53,18 +71,21 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
             display: none;
         }
 
-        .slides img {
-            display: none;
+        .slides .img {
             width: 100%;
             height: 90%;
             aspect-ratio: 365/400;
             object-fit: cover;
         }
 
-        #img1:checked ~ .slides .m1 { display: block; }
-        #img2:checked ~ .slides .m2 { display: block; }
-        #img3:checked ~ .slides .m3 { display: block; }
-        #img4:checked ~ .slides .m4 { display: block; }
+        .slides > .media-wrapper {
+            display: none;
+        }
+
+        #img1:checked ~ .slides > .m1 { display: block; }
+        #img2:checked ~ .slides > .m2 { display: block; }
+        #img3:checked ~ .slides > .m3 { display: block; }
+        #img4:checked ~ .slides > .m4 { display: block; }
 
         .dots {
             display: flex;
@@ -94,39 +115,86 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
             background-color: #f6dca8;
         }
 
-        #addCommentBox {
-            background-color: #f9f9f9;
-            border: 1px solid #d9d9d9;
+        .media-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .media-wrapper img,
+        .media-wrapper video {
+            width: 100%;
+            aspect-ratio: 365/400;
             border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .audio-img {
+            width: 100%;
+            aspect-ratio: 365/400;
+            object-fit: cover;
+            border-radius: 10px;
+            background-color: #f0f0f0;
+        }
+
+        .audio-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .audio-player {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            width: 60%;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+        }
+
+        .comment {
+            padding-bottom: 70px;
+            max-height: calc(100vh - 120px);
+        }
+
+        #addCommentBox {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 400px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
             padding: 10px;
-            margin-bottom: 15px;
+            z-index: 999;
+            box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+        }
+
+        #commentForm {
+            display: flex;
+            padding: 0 10px;
         }
 
         #addCommentBox textarea {
-            width: 90%;
+            width: 95%;
             resize: none;
             border-radius: 8px;
             padding: 8px;
             font-family: var(--itim);
-            font-size: 12px;
+            font-size: 16px;
             outline: none;
-            border: none;
+            border: 1px solid #ccc;
+            height: 20px;
         }
 
         #addCommentBox button {
-            margin-top: 5px;
-            padding: 6px 12px;
-            font-size: 12px;
-            background-color: var(--primary);
-            color: white;
             border: none;
-            border-radius: 6px;
             cursor: pointer;
-            transition: 0.2s;
+            background-color: transparent;
         }
 
-        #addCommentBox button:hover {
-            background-color: #b07c5c;
+        #addCommentBox button img {
+            width: 35px;
+            height: 35px;
         }
 
         .addReplyBox {
@@ -138,7 +206,7 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
             resize: none;
             border-radius: 6px;
             padding: 6px;
-            font-size: 11px;
+            font-size: 16px;
             font-family: var(--itim);
             outline: none;
             border: none;
@@ -196,29 +264,77 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
         <div class="back">
             <img src="../image/icons/back.png" alt="" onclick="window.location.href='happy_zone.php'">
         </div>
+        <?php if (!empty($mediaFiles) && is_array($mediaFiles)) { ?>
         <div class="media">
-            <img src="../image/confessions/happy/<?php echo $post ?>" alt="">
-            <!-- <div class="slider">
-                <input type="radio" name="slide" id="img1" checked>
-                <input type="radio" name="slide" id="img2">
-                <input type="radio" name="slide" id="img3">
-                <input type="radio" name="slide" id="img4">
+                <?php if (count($mediaFiles) === 1) { ?>
+                    <?php 
+                        $file = $mediaFiles[0];
+                        $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                        $isVideo = in_array($extension, ['mp4', 'mov', 'webm']);
+                        $isAudio = in_array($extension, ['mp3', 'wav', 'ogg']);
+                        $isGif   = $extension === 'gif';
+                    ?>
+                    <div class="media-wrapper">
+                        <?php if ($isVideo) { ?>
+                            <video controls playsinline preload="metadata">
+                                <source src="../image/confessions/happy/<?php echo htmlspecialchars($file); ?>" type="video/<?php echo $extension; ?>">
+                                Your browser does not support the video tag.
+                            </video>
+                        <?php } elseif ($isAudio) { ?>
+                            <img src="../image/confessions/audio.png" alt="audio" class="audio-img">
+                            <audio controls class="audio-player">
+                                <source src="../image/confessions/happy/<?php echo htmlspecialchars($file); ?>" type="audio/mpeg">
+                                <source src="../image/confessions/happy/<?php echo htmlspecialchars($file); ?>" type="audio/mp4">
+                                Your browser does not support the audio element.
+                            </audio>
+                        <?php } else { ?>
+                            <img class="img" src="../image/confessions/happy/<?php echo htmlspecialchars($file); ?>" alt="media">
+                        <?php } ?>
+                    </div>
+                <?php } else { ?>
+                    <!-- Multiple files (slider) -->
+                    <div class="slider">
+                        <?php foreach ($mediaFiles as $index => $file) { ?>
+                            <input type="radio" name="slide" id="img<?php echo $index+1; ?>" <?php echo $index === 0 ? 'checked' : ''; ?>>
+                        <?php } ?>
 
-                <div class="slides">
-                    <img src="../image/confessions/happy.jpg" class="m1" alt="img1">
-                    <img src="../image/confessions/happy(1).jpg" class="m2" alt="img2">
-                    <img src="../image/confessions/happy(2).jpg" class="m3" alt="img3">
-                    <img src="../image/confessions/happy(3).jpg" class="m4" alt="img4">
-                </div>
+                        <div class="slides">
+                            <?php foreach ($mediaFiles as $index => $file) { 
+                                $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                $isVideo = in_array($extension, ['mp4', 'mov', 'webm']);
+                                $isAudio = in_array($extension, ['mp3', 'wav', 'ogg', 'm4a']);
+                                $isGif   = $extension === 'gif';
+                            ?>
+                            <div class="media-wrapper m<?php echo $index+1; ?>">
+                                <?php if ($isVideo) { ?>
+                                    <video controls playsinline preload="metadata">
+                                        <source src="../image/confessions/happy/<?php echo htmlspecialchars($file); ?>" type="video/<?php echo $extension; ?>">
+                                    </video>
+                                <?php } elseif ($isAudio) { ?>
+                                    <img src="../image/confessions/audio.png" alt="audio" class="audio-img">
+                                    <audio controls class="audio-player">
+                                        <source src="../image/confessions/happy/<?php echo htmlspecialchars($file); ?>" type="audio/mpeg">
+                                        <source src="../image/confessions/happy/<?php echo htmlspecialchars($file); ?>" type="audio/mp4">
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                <?php } else { ?>
+                                    <img class="img" src="../image/confessions/happy/<?php echo htmlspecialchars($file); ?>" alt="media">
+                                <?php } ?>
+                            </div>
+                            <?php } ?>
+                        </div>
 
-                <div class="dots">
-                    <label for="img1"></label>
-                    <label for="img2"></label>
-                    <label for="img3"></label>
-                    <label for="img4"></label>
-                </div>
-            </div> -->
+                        <div class="dots">
+                            <?php foreach ($mediaFiles as $index => $file) { ?>
+                                <label for="img<?php echo $index+1; ?>"></label>
+                            <?php } ?>
+                        </div>
+                    </div>
+                <?php } ?>
         </div>
+        <?php } else { ?>
+            <div style="margin-top: 50px;"></div>
+        <?php } ?>
         <div class="post">
             <div class="title">
                 <h1><?php echo $title ?></h1>
@@ -236,19 +352,6 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
             <div class="comment_title">
                 <img src="../image/icons/comments.png" alt="">
                 <h1>Comments</h1>
-                <div class="spacer"></div>
-                <div class="add">
-                    <p onclick="toggleAddComment();">Add Comments</p>
-                </div>
-            </div>
-            <!-- Hidden Add Comment form -->
-            <div id="addCommentBox" style="display: none; margin: 10px 0;">
-                <form method="post" id="commentForm">
-                    <input type="hidden" name="confession_id" value="<?php echo $confession ?>">
-                    <input type="hidden" name="type" value="comment">
-                    <textarea name="comment_message" placeholder="Write your comment..." required></textarea>
-                    <button type="submit">Comment!</button>
-                </form>
             </div>
             <div class="comment" id="commentList">
                 <?php
@@ -276,7 +379,7 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
                         <p><?php echo $comment_date ?></p>
                     </div>
                     <div class="reply" style="display: none;">
-                        <div class="horizontal" style="margin: 0 auto 5px auto; width: 95%; background-color: #B8B8B8;"></div>
+                        <div class="horizontal" style="margin: 0 auto 5px auto; width: 85%; background-color: #B8B8B8;"></div>
                         <?php
                             $comment_id = $comment['comment_id'];
                             // Fetch replies for this comment
@@ -322,6 +425,7 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
                 <!-- Add reply form -->
                 <form method="post" class="addReplyBox" style="margin-top:10px; display:none;">
                     <input type="hidden" name="comment_id" value="<?php echo $comment_id ?>">
+                    <input type="hidden" name="type" value="reply">  <!-- ✅ ADD THIS -->
                     <textarea name="reply_message" placeholder="Write your reply..." required style="height:50px;"></textarea>
                     <button type="submit">Post Reply</button>
                 </form>
@@ -336,6 +440,14 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
                 ?>
             </div>
             <div id="toast"></div>
+        </div>
+        <div id="addCommentBox">
+            <form method="post" id="commentForm">
+                <input type="hidden" name="confession_id" value="<?php echo $confession ?>">
+                <input type="hidden" name="type" value="comment">
+                <textarea name="comment_message" placeholder="Write your comment..." required></textarea>
+                <button type="submit"><img src="../image/icons/send.png" alt=""></button>
+            </form>
         </div>
     </div>
     <script>
@@ -379,29 +491,27 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
 
         // TouchScreen
         slider.addEventListener('touchstart', (e) => {
-            startX = e.clientX;
+            startX = e.touches[0].clientX;
             dragging = true;
-            // prevent text selection while dragging
-            document.body.style.userSelect = 'none';
         });
 
-        document.addEventListener('touchend', (e) => {
+        slider.addEventListener('touchend', (e) => {
             if (!dragging) return;
             dragging = false;
-            document.body.style.userSelect = '';
 
-            const endX = e.clientX;
+            const endX = e.changedTouches[0].clientX;
             const diff = startX - endX;
             const currentIndex = radios.findIndex(r => r.checked);
 
             if (diff > SWIPE_THRESHOLD && currentIndex < radios.length - 1) {
-            // swipe left -> next
-            radios[currentIndex + 1].checked = true;
+                // swipe left -> next
+                radios[currentIndex + 1].checked = true;
             } else if (diff < -SWIPE_THRESHOLD && currentIndex > 0) {
-            // swipe right -> previous
-            radios[currentIndex - 1].checked = true;
+                // swipe right -> previous
+                radios[currentIndex - 1].checked = true;
             }
         });
+
 
         // Prevent accidental drag of images interfering with mousedown
         document.querySelectorAll('.slides img').forEach(img => {
@@ -418,11 +528,6 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
             } else {
                 replyBox.style.display = 'none';   // hide
             }
-        }
-
-        function toggleAddComment() {
-            const box = document.getElementById('addCommentBox');
-            box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
         }
 
         function toggleReply(el) {
@@ -449,6 +554,26 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
             }, 3000);
         }
 
+        function scrollToBottom() {
+            const commentList = document.getElementById("commentList");
+            if (!commentList) return;
+
+            let attempts = 0;
+            const interval = setInterval(() => {
+                commentList.scrollTo({
+                    top: commentList.scrollHeight,
+                    behavior: "smooth"
+                });
+                attempts++;
+                if (attempts > 5) clearInterval(interval);
+            }, 100);
+        }
+
+        window.addEventListener("load", scrollToBottom);
+        document.querySelector("#commentForm textarea").addEventListener("focus", () => {
+            setTimeout(scrollToBottom, 300);
+        });
+
         document.getElementById("commentForm").addEventListener("submit", function(e) {
             e.preventDefault();
 
@@ -463,7 +588,6 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
                 if (data.status === 'success') {
                     showToast("✅ Your comment has been submitted and is awaiting admin approval.");
                     document.querySelector("#commentForm textarea").value = "";
-                    document.getElementById("addCommentBox").style.display = "none";
                 } else {
                     showToast("⚠️ Error!");
                 }
@@ -500,6 +624,54 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
                     showToast("❌ Failed to send reply.");
                 });
             });
+        });
+
+        document.querySelectorAll(".addReplyBox textarea").forEach(textarea => {
+            textarea.addEventListener("focus", () => {
+                const commentBox = document.getElementById("addCommentBox");
+                if (commentBox) commentBox.style.display = "none";
+            });
+
+            textarea.addEventListener("blur", () => {
+                const commentBox = document.getElementById("addCommentBox");
+                if (commentBox) commentBox.style.display = "block";
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const mediaElements = document.querySelectorAll("audio, video");
+            const slideRadios = document.querySelectorAll('.slider input[name="slide"]');
+
+            // Ensure no autoplay
+            mediaElements.forEach(media => {
+                media.autoplay = false;
+                media.pause();
+                media.currentTime = 0;
+            });
+
+            // When slide changes, stop all audio/video
+            slideRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    mediaElements.forEach(media => {
+                        media.pause();
+                        media.currentTime = 0; // reset position
+                    });
+                });
+            });
+
+            // Also stop all media when user swipes (for touch/mouse)
+            const slider = document.querySelector('.slider');
+            if (slider) {
+                slider.addEventListener('mouseup', stopAllMedia);
+                slider.addEventListener('touchend', stopAllMedia);
+            }
+
+            function stopAllMedia() {
+                mediaElements.forEach(media => {
+                    media.pause();
+                    media.currentTime = 0;
+                });
+            }
         });
 
     </script>
