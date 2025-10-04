@@ -210,6 +210,7 @@ body::-webkit-scrollbar {
     height: 220px;
     border-radius: 10px;
     background-color: #f2ece5;
+    cursor: pointer;
 }
 
 .confessions .content .each_content img {

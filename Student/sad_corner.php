@@ -42,6 +42,10 @@ if(isset($_SESSION['student_id'])) {
           height: 25px !important;
           margin-right: 10px;
       }
+
+      .header_right img {
+        cursor: pointer;
+      }
     </style>
 </head>
 <body style="background-color: #1e293b;">

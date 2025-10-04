@@ -140,10 +140,22 @@ if (isset($_SESSION['student_id'])) {
             <?php
                 if (!empty($confessions)) {
                     foreach ($confessions as $row) {
+                        // decode JSON into array
+                        $mediaFiles = json_decode($row['confession_post'], true);
+
+                        // make sure it's a valid array
+                        $firstFile = "";
+                        if (is_array($mediaFiles) && count($mediaFiles) > 0) {
+                            $firstFile = $mediaFiles[0]; // first file only
+                        }
             ?>
-            <div class="each_content" onclick="window.location.href='#'">
-                <img src="../image/confessions/happy/<?php echo $row['confession_post'] ?>" alt="">
-                <p><?php echo $row['confession_title'] ?></p>
+            <div class="each_content" onclick="window.location.href='happy_zone_post.php?id=<?php echo $row['confession_id'] ?>'">
+                <?php if (!empty($firstFile)) { ?>
+                <img src="../image/confessions/happy/<?php echo htmlspecialchars($firstFile); ?>" alt="">
+                <?php } else { ?>
+                <p style="text-align:center;color:grey;">No image</p>
+                <?php } ?>
+                <p><?php echo htmlspecialchars($row['confession_title']); ?></p>
             </div>
             <?php
                     }
