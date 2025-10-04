@@ -279,7 +279,7 @@ if (isset($_SESSION['student_id'])) {
                 </div>
                 <div class="all_attach_tools">
                     <div class="each_attach" onclick="this.querySelector('input').click()">
-                        <input type="file" id="photoPickerLarge" accept="image/*,video/*" style="display:none;">
+                        <input type="file" id="photoPickerLarge" accept="image/*,video/*" style="display:none;" multiple>
                         <div class="left">
                             <img src="../image/icons/image.png" alt="">
                             <p>Photo/Video</p>
@@ -290,7 +290,7 @@ if (isset($_SESSION['student_id'])) {
                         </div>
                     </div>
                     <div class="each_attach" onclick="this.querySelector('input').click()">
-                        <input type="file" id="gifPickerLarge" accept="image/gif" style="display:none;">
+                        <input type="file" id="gifPickerLarge" accept="image/gif" style="display:none;" multiple>
                         <div class="left">
                             <img src="../image/icons/gif.png" alt="">
                             <p>Gif</p>
@@ -301,7 +301,7 @@ if (isset($_SESSION['student_id'])) {
                         </div>
                     </div>
                     <div class="each_attach" onclick="this.querySelector('input').click()">
-                        <input type="file" id="cameraPickerLarge" accept="image/*,video/*" capture="environment" style="display:none;">
+                        <input type="file" id="cameraPickerLarge" accept="image/*,video/*" capture="environment" style="display:none;" multiple>
                         <div class="left">
                             <img src="../image/icons/camera.png" alt="">
                             <p>Camera</p>
@@ -312,7 +312,7 @@ if (isset($_SESSION['student_id'])) {
                         </div>
                     </div>
                     <div class="each_attach" onclick="this.querySelector('input').click()">
-                        <input type="file" id="audioPickerLarge" accept="audio/*" capture="microphone" style="display:none;">
+                        <input type="file" id="audioPickerLarge" accept="audio/*" capture="microphone" style="display:none;" multiple>
                         <div class="left">
                             <img src="../image/icons/audio.png" alt="">
                             <p>Audio</p>
@@ -327,19 +327,19 @@ if (isset($_SESSION['student_id'])) {
             <!-- Small Panel -->
             <div class="small">
                 <div class="each_attach" onclick="this.querySelector('input').click()">
-                    <input type="file" id="photoPickerSmall" accept="image/*,video/*" style="display:none;">
+                    <input type="file" id="photoPickerSmall" accept="image/*,video/*" style="display:none;" multiple>
                     <img src="../image/icons/image.png" alt="">
                 </div>
                 <div class="each_attach" onclick="this.querySelector('input').click()">
-                    <input type="file" id="gifPickerSmall" accept="image/gif" style="display:none;">
+                    <input type="file" id="gifPickerSmall" accept="image/gif" style="display:none;" multiple>
                     <img src="../image/icons/gif.png" alt="">
                 </div>
                 <div class="each_attach" onclick="this.querySelector('input').click()">
-                    <input type="file" id="cameraPickerSmall" accept="image/*,video/*" capture="environment" style="display:none;">
+                    <input type="file" id="cameraPickerSmall" accept="image/*,video/*" capture="environment" style="display:none;" multiple>
                     <img src="../image/icons/camera.png" alt="">
                 </div>
                 <div class="each_attach" onclick="this.querySelector('input').click()">
-                    <input type="file" id="audioPickerSmall" accept="audio/*" capture="microphone" style="display:none;">
+                    <input type="file" id="audioPickerSmall" accept="audio/*" capture="microphone" style="display:none;" multiple>
                     <img src="../image/icons/audio.png" alt="">
                 </div>
                 <div class="each_attach">
@@ -425,6 +425,7 @@ if (isset($_SESSION['student_id'])) {
         const titleInput = document.querySelector("input[name='title']");
         const textArea = document.querySelector("textarea[name='post_input']");
         const previewArea = document.getElementById("previewArea");
+        let allFiles = [];
 
         function validateForm() {
             const hasTitle = titleInput.value.trim().length > 0;
@@ -468,11 +469,14 @@ if (isset($_SESSION['student_id'])) {
                     closeBtn.innerHTML = "&times;";
                     closeBtn.onclick = () => {
                         wrapper.remove();
+                        allFiles = allFiles.filter(f => f !== file); // ✅ remove from array
                         validateForm();
                     };
                     wrapper.appendChild(element);
                     wrapper.appendChild(closeBtn);
                     previewArea.appendChild(wrapper);
+
+                    allFiles.push(file); // ✅ add to array
                     validateForm();
                 }
             };
@@ -484,10 +488,14 @@ if (isset($_SESSION['student_id'])) {
             const input = document.getElementById(inputId);
             input.addEventListener("change", e => {
                 if (e.target.files.length > 0) {
-                    showPreview(e.target.files[0]);
+                    for (let file of e.target.files) {
+                        showPreview(file);
+                    }
                 }
+                input.value = ""; // ✅ reset so same file can be picked again
             });
         }
+
 
         ["photoPickerLarge","photoPickerSmall",
         "gifPickerLarge","gifPickerSmall",
@@ -518,13 +526,9 @@ if (isset($_SESSION['student_id'])) {
             const formData = new FormData(form);
 
             // Append all files from preview inputs
-            document.querySelectorAll("#photoPickerLarge, #photoPickerSmall, #gifPickerLarge, #gifPickerSmall, #cameraPickerLarge, #cameraPickerSmall, #audioPickerLarge, #audioPickerSmall")
-            .forEach(input => {
-                if (input.files.length > 0) {
-                    for (let file of input.files) {
-                        formData.append("media[]", file);
-                    }
-                }
+            allFiles.forEach(file => {
+                console.log("Appending file:", file.name);
+                formData.append("media[]", file);
             });
 
             fetch("save.php", {
@@ -538,7 +542,7 @@ if (isset($_SESSION['student_id'])) {
                     form.reset();
                     previewArea.innerHTML = ""; // clear preview
                     postBtn.classList.remove("active");
-                    setTimeout(() => window.location.href="happy_profile.php", 1500);
+                    setTimeout(() => window.location.href="happy_zone.php", 1500);
                 } else {
                      showToast("⚠️ " + data.message, "error");
                 }

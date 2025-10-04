@@ -29,6 +29,13 @@ if(isset($_SESSION['student_id'])) {
     <title>Unicare</title>
     <link rel="icon" href="../image/favicon.png" type="image/x-icon" />
     <link rel="stylesheet" href="style.css" />
+    <style>
+        .header_right .img {
+            width: 25px !important;
+            height: 25px !important;
+            margin-right: 10px;
+        }
+    </style>
 </head>
 <body>
     <div class="confessions">
@@ -39,6 +46,7 @@ if(isset($_SESSION['student_id'])) {
         </div>
         <div class="spacer"></div>
         <div class="header_right">
+          <img class="img" src="../image/icons/add.png" alt="" onclick="window.location.href='happy_add.php';">
           <img src="../image/icons/user.png" alt="" onclick="window.location.href='happy_profile.php'">
           <div class="dark_light">
             <input type="checkbox" onchange="goSadCorner(this)">

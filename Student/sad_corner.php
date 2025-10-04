@@ -36,6 +36,12 @@ if(isset($_SESSION['student_id'])) {
       .each_content p {
         color: white !important;
       }
+
+      .header_right .img {
+          width: 25px !important;
+          height: 25px !important;
+          margin-right: 10px;
+      }
     </style>
 </head>
 <body style="background-color: #1e293b;">
@@ -47,6 +53,7 @@ if(isset($_SESSION['student_id'])) {
         </div>
         <div class="spacer"></div>
         <div class="header_right">
+          <img class="img" src="../image/icons/add.png" alt="" onclick="window.location.href='sad_add.php';">
           <img src="../image/icons/user.png" alt="" onclick="window.location.href='sad_profile.php'">
           <div class="dark_light">
             <input type="checkbox" onchange="window.location.href='happy_zone.php'" checked>

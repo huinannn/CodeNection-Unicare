@@ -62,22 +62,19 @@ if ($type === "reply") {
 if (isset($_POST['title'], $_POST['post_input'], $_POST['mode'])) {
     $title = trim($_POST['title']);
     $message = trim($_POST['post_input']) !== '' ? trim($_POST['post_input']) : null;
-    $mode = ($_POST['mode'] === 'happy') ? 'happy' : 'sad'; // only allow happy/sad
+    $mode = ($_POST['mode'] === 'happy') ? 'happy' : 'sad';
     $uploadedFiles = [];
 
-    // Handle multiple media upload (optional)
     if (!empty($_FILES['media']['name'][0])) {
-        // ✅ Save inside different folder based on mode
         $uploadsDir = __DIR__ . "/../image/confessions/" . $mode . "/";
         if (!is_dir($uploadsDir)) {
             mkdir($uploadsDir, 0777, true);
         }
 
-        $maxFileSize = 5 * 1024 * 1024; // 5 MB per file
+        $maxFileSize = 5 * 1024 * 1024;
 
         foreach ($_FILES['media']['name'] as $key => $name) {
             if ($_FILES['media']['error'][$key] === UPLOAD_ERR_OK) {
-                // Check file size
                 if ($_FILES['media']['size'][$key] > $maxFileSize) {
                     echo json_encode([
                         "status" => "error",
@@ -86,22 +83,20 @@ if (isset($_POST['title'], $_POST['post_input'], $_POST['mode'])) {
                     exit();
                 }
 
-                // Create safe filename
-                $fileName = time() . "_" . basename($name);
+                $fileName = time() . "_" . preg_replace("/[^a-zA-Z0-9\._-]/", "_", basename($name));
                 $targetFile = $uploadsDir . $fileName;
 
                 if (move_uploaded_file($_FILES['media']['tmp_name'][$key], $targetFile)) {
-                    // ✅ Store relative path for DB (not absolute server path)
-                    $uploadedFiles[] = "/../image/confessions/" . $mode . "/" . $fileName;
+                    $uploadedFiles[] = $fileName;
                 }
             }
         }
     }
 
-    // Store uploaded files as JSON or null
     $filePath = !empty($uploadedFiles) ? json_encode($uploadedFiles) : null;
+    
 
-    // ✅ Validation: require title AND (message or file)
+    // Validation
     if ($title === '' || ($message === '' && empty($uploadedFiles))) {
         echo json_encode([
             "status" => "error",
@@ -110,11 +105,11 @@ if (isset($_POST['title'], $_POST['post_input'], $_POST['mode'])) {
         exit();
     }
 
-    $sqlInsert = "INSERT INTO confession 
-        (confession_title, confession_message, confession_post, confession_date_time, mode, confession_status, student_id)
-        VALUES (?, ?, ?, NOW(), ?, 'pending', ?)";
+    $sqlInsert = "INSERT INTO confession (confession_title, confession_message, confession_post, confession_date_time, mode, confession_status, student_id)
+                VALUES (?, ?, ?, NOW(), ?, 'pending', ?)";
     $stmtInsert = $dbConn->prepare($sqlInsert);
-    $stmtInsert->bind_param("sssss", $title, $message, $fileName, $mode, $student_id);
+
+    $stmtInsert->bind_param("sssss", $title, $message, $filePath, $mode, $student_id);
 
     if ($stmtInsert->execute()) {
         echo json_encode([
@@ -127,6 +122,7 @@ if (isset($_POST['title'], $_POST['post_input'], $_POST['mode'])) {
     $stmtInsert->close();
     exit();
 }
+
 
 
 
