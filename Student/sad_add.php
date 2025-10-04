@@ -437,6 +437,7 @@ if (isset($_SESSION['student_id'])) {
         const titleInput = document.querySelector("input[name='title']");
         const textArea = document.querySelector("textarea[name='post_input']");
         const previewArea = document.getElementById("previewArea");
+        let allFiles = [];
 
         function validateForm() {
             const hasTitle = titleInput.value.trim().length > 0;
@@ -480,11 +481,14 @@ if (isset($_SESSION['student_id'])) {
                     closeBtn.innerHTML = "&times;";
                     closeBtn.onclick = () => {
                         wrapper.remove();
+                        allFiles = allFiles.filter(f => f !== file); // ✅ remove from array
                         validateForm();
                     };
                     wrapper.appendChild(element);
                     wrapper.appendChild(closeBtn);
                     previewArea.appendChild(wrapper);
+
+                    allFiles.push(file); // ✅ add to array
                     validateForm();
                 }
             };
@@ -496,8 +500,11 @@ if (isset($_SESSION['student_id'])) {
             const input = document.getElementById(inputId);
             input.addEventListener("change", e => {
                 if (e.target.files.length > 0) {
-                    showPreview(e.target.files[0]);
+                    for (let file of e.target.files) {
+                        showPreview(file);
+                    }
                 }
+                input.value = ""; // ✅ reset so same file can be picked again
             });
         }
 
@@ -530,13 +537,9 @@ if (isset($_SESSION['student_id'])) {
             const formData = new FormData(form);
 
             // Append all files from preview inputs
-            document.querySelectorAll("#photoPickerLarge, #photoPickerSmall, #gifPickerLarge, #gifPickerSmall, #cameraPickerLarge, #cameraPickerSmall, #audioPickerLarge, #audioPickerSmall")
-            .forEach(input => {
-                if (input.files.length > 0) {
-                    for (let file of input.files) {
-                        formData.append("media[]", file);
-                    }
-                }
+            allFiles.forEach(file => {
+                console.log("Appending file:", file.name);
+                formData.append("media[]", file);
             });
 
             fetch("save.php", {
