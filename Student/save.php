@@ -65,7 +65,7 @@ if (isset($_POST['title'], $_POST['post_input'], $_POST['mode'])) {
     $mode = ($_POST['mode'] === 'happy') ? 'happy' : 'sad';
     $uploadedFiles = [];
 
-    $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mp3'];
+    $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov', 'mp3', 'm4a'];
 
     foreach ($_FILES['media']['name'] as $key => $filename) {
         $file_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
