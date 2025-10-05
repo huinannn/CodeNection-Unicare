@@ -82,6 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 50);
     }
     
+    function toggleSendButton() {
+        const message = userInput.value.trim();
+        sendBtn.disabled = message === "";
+    }
+
+    toggleSendButton(); 
+
+    userInput.addEventListener("input", toggleSendButton);
+   
     // user message
     async function sendMessage() {
         const message = userInput.value.trim();
@@ -100,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scrollToBottom();
         saveChat();    
         userInput.value = "";
+        toggleSendButton();
 
         // typing
         const botTypingHTML = `
