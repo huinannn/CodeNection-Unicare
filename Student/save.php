@@ -65,6 +65,20 @@ if (isset($_POST['title'], $_POST['post_input'], $_POST['mode'])) {
     $mode = ($_POST['mode'] === 'happy') ? 'happy' : 'sad';
     $uploadedFiles = [];
 
+    $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mp3'];
+
+    foreach ($_FILES['media']['name'] as $key => $filename) {
+        $file_ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        if (!in_array($file_ext, $allowed_extensions)) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => "File type not allowed: $filename"
+            ]);
+            exit;
+        }
+    }
+    
     if (!empty($_FILES['media']['name'][0])) {
         $uploadsDir = __DIR__ . "/../image/confessions/" . $mode . "/";
         if (!is_dir($uploadsDir)) {

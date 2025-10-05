@@ -301,8 +301,8 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
                         <div class="slides">
                             <?php foreach ($mediaFiles as $index => $file) { 
                                 $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                                $isVideo = in_array($extension, ['mp4', 'mov', 'webm']);
-                                $isAudio = in_array($extension, ['mp3', 'wav', 'ogg', 'm4a']);
+                                $isVideo = in_array($extension, ['mp4']);
+                                $isAudio = in_array($extension, ['mp3', 'm4a']);
                                 $isGif   = $extension === 'gif';
                             ?>
                             <div class="media-wrapper m<?php echo $index+1; ?>">
@@ -638,41 +638,41 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
             });
         });
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const mediaElements = document.querySelectorAll("audio, video");
-            const slideRadios = document.querySelectorAll('.slider input[name="slide"]');
+        // document.addEventListener("DOMContentLoaded", () => {
+        //     const mediaElements = document.querySelectorAll("audio, video");
+        //     const slideRadios = document.querySelectorAll('.slider input[name="slide"]');
 
-            // Ensure no autoplay
-            mediaElements.forEach(media => {
-                media.autoplay = false;
-                media.pause();
-                media.currentTime = 0;
-            });
+        //     // Ensure no autoplay
+        //     mediaElements.forEach(media => {
+        //         media.autoplay = false;
+        //         media.pause();
+        //         media.currentTime = 0;
+        //     });
 
-            // When slide changes, stop all audio/video
-            slideRadios.forEach(radio => {
-                radio.addEventListener('change', () => {
-                    mediaElements.forEach(media => {
-                        media.pause();
-                        media.currentTime = 0; // reset position
-                    });
-                });
-            });
+        //     // When slide changes, stop all audio/video
+        //     slideRadios.forEach(radio => {
+        //         radio.addEventListener('change', () => {
+        //             mediaElements.forEach(media => {
+        //                 media.pause();
+        //                 media.currentTime = 0; // reset position
+        //             });
+        //         });
+        //     });
 
-            // Also stop all media when user swipes (for touch/mouse)
-            const slider = document.querySelector('.slider');
-            if (slider) {
-                slider.addEventListener('mouseup', stopAllMedia);
-                slider.addEventListener('touchend', stopAllMedia);
-            }
+        //     // Also stop all media when user swipes (for touch/mouse)
+        //     const slider = document.querySelector('.slider');
+        //     if (slider) {
+        //         slider.addEventListener('mouseup', stopAllMedia);
+        //         slider.addEventListener('touchend', stopAllMedia);
+        //     }
 
-            function stopAllMedia() {
-                mediaElements.forEach(media => {
-                    media.pause();
-                    media.currentTime = 0;
-                });
-            }
-        });
+        //     function stopAllMedia() {
+        //         mediaElements.forEach(media => {
+        //             media.pause();
+        //             media.currentTime = 0;
+        //         });
+        //     }
+        // });
 
     </script>
 </body>

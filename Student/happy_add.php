@@ -88,6 +88,7 @@ if (isset($_SESSION['student_id'])) {
             max-width: 365px;
             width: 100%;
             padding: 10px;
+            font-size: 16px;
             border: none;
             box-sizing: border-box;
         }
@@ -102,6 +103,7 @@ if (isset($_SESSION['student_id'])) {
         .post textarea {
             width: 100%;
             height: 300px;
+            font-size: 16px;
             border: none;
             box-sizing: border-box;
             padding: 10px;
@@ -279,7 +281,7 @@ if (isset($_SESSION['student_id'])) {
                 </div>
                 <div class="all_attach_tools">
                     <div class="each_attach" onclick="this.querySelector('input').click()">
-                        <input type="file" id="photoPickerLarge" accept="image/*,video/*" style="display:none;" multiple>
+                        <input type="file" id="photoPickerLarge" accept=".jpg,.jpeg,.png,.gif,.mp4" style="display:none;" multiple>
                         <div class="left">
                             <img src="../image/icons/image.png" alt="">
                             <p>Photo/Video</p>
@@ -290,7 +292,7 @@ if (isset($_SESSION['student_id'])) {
                         </div>
                     </div>
                     <div class="each_attach" onclick="this.querySelector('input').click()">
-                        <input type="file" id="gifPickerLarge" accept="image/gif" style="display:none;" multiple>
+                        <input type="file" id="gifPickerLarge" accept=".gif" style="display:none;" multiple>
                         <div class="left">
                             <img src="../image/icons/gif.png" alt="">
                             <p>Gif</p>
@@ -301,7 +303,7 @@ if (isset($_SESSION['student_id'])) {
                         </div>
                     </div>
                     <div class="each_attach" onclick="this.querySelector('input').click()">
-                        <input type="file" id="cameraPickerLarge" accept="image/*,video/*" capture="environment" style="display:none;" multiple>
+                        <input type="file" id="cameraPickerLarge" accept=".jpg,.jpeg,.png,.gif,.mp4;capture=camera" capture style="display:none;" multiple>
                         <div class="left">
                             <img src="../image/icons/camera.png" alt="">
                             <p>Camera</p>
@@ -312,7 +314,7 @@ if (isset($_SESSION['student_id'])) {
                         </div>
                     </div>
                     <div class="each_attach" onclick="this.querySelector('input').click()">
-                        <input type="file" id="audioPickerLarge" accept="audio/*" capture="microphone" style="display:none;" multiple>
+                        <input type="file" id="audioPickerLarge" accept="audio/*"  style="display:none;" multiple>
                         <div class="left">
                             <img src="../image/icons/audio.png" alt="">
                             <p>Audio</p>
@@ -327,19 +329,19 @@ if (isset($_SESSION['student_id'])) {
             <!-- Small Panel -->
             <div class="small">
                 <div class="each_attach" onclick="this.querySelector('input').click()">
-                    <input type="file" id="photoPickerSmall" accept="image/*,video/*" style="display:none;" multiple>
+                    <input type="file" id="photoPickerSmall" accept=".jpg,.jpeg,.png,.gif,.mp4" style="display:none;" multiple>
                     <img src="../image/icons/image.png" alt="">
                 </div>
                 <div class="each_attach" onclick="this.querySelector('input').click()">
-                    <input type="file" id="gifPickerSmall" accept="image/gif" style="display:none;" multiple>
+                    <input type="file" id="gifPickerSmall" accept=".gif" style="display:none;" multiple>
                     <img src="../image/icons/gif.png" alt="">
                 </div>
                 <div class="each_attach" onclick="this.querySelector('input').click()">
-                    <input type="file" id="cameraPickerSmall" accept="image/*,video/*" capture="environment" style="display:none;" multiple>
+                    <input type="file" id="cameraPickerSmall" accept=".jpg,.jpeg,.png,.gif,.mp4;capture=camera" capture (change)="getFile($event)" style="display:none;" multiple>
                     <img src="../image/icons/camera.png" alt="">
                 </div>
                 <div class="each_attach" onclick="this.querySelector('input').click()">
-                    <input type="file" id="audioPickerSmall" accept="audio/*" capture="microphone" style="display:none;" multiple>
+                    <input type="file" id="audioPickerSmall" accept="audio/*"  style="display:none;" multiple>
                     <img src="../image/icons/audio.png" alt="">
                 </div>
                 <div class="each_attach">
@@ -552,7 +554,6 @@ if (isset($_SESSION['student_id'])) {
                 showToast("❌ Failed to save post." + data.message, "error");
             });
         });
-
 
         // Initial check
         validateForm();
