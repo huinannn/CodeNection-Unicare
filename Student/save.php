@@ -97,7 +97,13 @@ if (isset($_POST['title'], $_POST['post_input'], $_POST['mode'])) {
                     exit();
                 }
 
-                $fileName = time() . "_" . preg_replace("/[^a-zA-Z0-9\._-]/", "_", basename($name));
+                // ✅ Force lowercase extension
+                $file_ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+
+                // ✅ Clean up name and ensure lowercase extension
+                $baseName = pathinfo($name, PATHINFO_FILENAME);
+                $safeBase = preg_replace("/[^a-zA-Z0-9_-]/", "_", $baseName);
+                $fileName = time() . "_" . $safeBase . "." . $file_ext;
                 $targetFile = $uploadsDir . $fileName;
 
                 if (move_uploaded_file($_FILES['media']['tmp_name'][$key], $targetFile)) {

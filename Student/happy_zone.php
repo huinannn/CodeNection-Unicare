@@ -72,6 +72,13 @@ if(isset($_SESSION['student_id'])) {
           filter: invert(1);
         }
 
+        .no-play {
+          pointer-events: none;   /* prevent clicking or playing */
+          user-select: none;      /* disable text/image selection */
+          -webkit-user-drag: none;/* prevent drag on iOS Safari */
+          background-color: #000; 
+        }
+
     </style>
 </head>
 <body>
@@ -108,14 +115,14 @@ if(isset($_SESSION['student_id'])) {
                     $fileExtension = strtolower(pathinfo($firstFile, PATHINFO_EXTENSION));
 
                     // Determine media type
-                    $isVideo = in_array($fileExtension, ['mp4', 'mov', 'webm', 'avi', 'mkv', 'gif']);
-                    $isAudio = in_array($fileExtension, ['mp3', 'wav', 'ogg', 'm4a']);
+                    $isVideo = in_array($fileExtension, ['mp4', 'mov','MP4','MOV']);
+                    $isAudio = in_array($fileExtension, ['mp3', 'm4a','MP3','M4A']);
                 }
         ?>
           <div class="each_content" onclick="window.location.href='happy_zone_post.php?id=<?php echo $row['confession_id'] ?>'">
             <div class="media-wrapper">
               <?php if ($isVideo) { ?>
-                <video src="<?php echo $filePath; ?>" muted preload="metadata" class="media-thumb"></video>
+                <video src="<?php echo $filePath; ?>" playsinline webkit-playsinline preload="metadata" class="media-thumb no-play" controlslist="nodownload nofullscreen noremoteplayback"disablepictureinpicture onloadedmetadata="this.currentTime=0.1;"></video>
                 <div class="icon-overlay">
                   <img src="../image/icons/play.png" alt="play icon">
                 </div>

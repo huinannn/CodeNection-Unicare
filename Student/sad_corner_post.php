@@ -124,7 +124,7 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
             width: 100%;
             aspect-ratio: 365/400;
             border-radius: 10px;
-            object-fit: cover;
+            object-fit: contain;
         }
 
         .audio-img {
@@ -294,21 +294,22 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
                     <?php 
                         $file = $mediaFiles[0];
                         $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                        $isVideo = in_array($extension, ['mp4', 'mov', 'webm']);
-                        $isAudio = in_array($extension, ['mp3', 'wav', 'ogg']);
+                        $isVideo = in_array($extension, ['mp4', 'mov','MP4','MOV']);
+                        $isAudio = in_array($extension, ['mp3', 'm4a','MP3','M4A']);
                         $isGif   = $extension === 'gif';
                     ?>
                     <div class="media-wrapper">
                         <?php if ($isVideo) { ?>
-                            <video controls playsinline preload="metadata">
-                                <source src="../image/confessions/sad/<?php echo htmlspecialchars($file); ?>" type="video/<?php echo $extension; ?>">
-                                Your browser does not support the video tag.
+                            <?php $videoMimeType = ($extension === 'mov' || $extension === 'MOV') ? 'video/mp4' : 'video/mp4'; ?>
+                            <video controls playsinline webkit-playsinline preload="metadata" muted>
+                                <source src="../image/confessions/sad/<?php echo htmlspecialchars($file); ?>" type="<?php echo $videoMimeType; ?>">
+                                Your browser does not support this video.
                             </video>
                         <?php } elseif ($isAudio) { ?>
+                            <?php $audioMimeType = ($extension === 'm4a' || $extension === 'M4A') ? 'audio/mp4' : 'audio/mpeg';?>
                             <img src="../image/confessions/audio.png" alt="audio" class="audio-img">
                             <audio controls class="audio-player">
-                                <source src="../image/confessions/sad/<?php echo htmlspecialchars($file); ?>" type="audio/mpeg">
-                                <source src="../image/confessions/sad/<?php echo htmlspecialchars($file); ?>" type="audio/mp4">
+                                <source src="../image/confessions/sad/<?php echo htmlspecialchars($file); ?>" type="<?php echo $audioMimeType ?>">
                                 Your browser does not support the audio element.
                             </audio>
                         <?php } else { ?>
@@ -325,20 +326,22 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
                         <div class="slides">
                             <?php foreach ($mediaFiles as $index => $file) { 
                                 $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                                $isVideo = in_array($extension, ['mp4', 'mov', 'webm']);
-                                $isAudio = in_array($extension, ['mp3', 'wav', 'ogg', 'm4a']);
+                                $isVideo = in_array($extension, ['mp4', 'mov']);
+                                $isAudio = in_array($extension, ['mp3', 'm4a']);
                                 $isGif   = $extension === 'gif';
                             ?>
                             <div class="media-wrapper m<?php echo $index+1; ?>">
                                 <?php if ($isVideo) { ?>
-                                    <video controls playsinline preload="metadata">
-                                        <source src="../image/confessions/sad/<?php echo htmlspecialchars($file); ?>" type="video/<?php echo $extension; ?>">
+                                    <?php $videoMimeType = ($extension === 'mov'|| $extension === 'MOV') ? 'video/mp4' : 'video/mp4'; ?>
+                                    <video controls playsinline webkit-playsinline preload="metadata" muted>
+                                        <source src="../image/confessions/sad/<?php echo htmlspecialchars($file); ?>" type="<?php echo $videoMimeType; ?>">
+                                        Your browser does not support this video.
                                     </video>
                                 <?php } elseif ($isAudio) { ?>
+                                    <?php $audioMimeType = ($extension === 'm4a' || $extension === 'M4A') ? 'audio/mp4' : 'audio/mpeg';?>
                                     <img src="../image/confessions/audio.png" alt="audio" class="audio-img">
                                     <audio controls class="audio-player">
-                                        <source src="../image/confessions/sad/<?php echo htmlspecialchars($file); ?>" type="audio/mpeg">
-                                        <source src="../image/confessions/sad/<?php echo htmlspecialchars($file); ?>" type="audio/mp4">
+                                        <source src="../image/confessions/sad/<?php echo htmlspecialchars($file); ?>" type="<?php echo $audioMimeType ?>">
                                         Your browser does not support the audio element.
                                     </audio>
                                 <?php } else { ?>
@@ -479,227 +482,163 @@ if(isset($_SESSION['student_id']) && $_GET['id']) {
         </div>
     </div>
     <script>
-        (function () {
-        const slider = document.querySelector('.slider');
-        if (!slider) return;
-
-        const radios = Array.from(document.querySelectorAll('.slider input[name="slide"]'));
-        if (radios.length === 0) return;
-
-        let startX = 0;
-        let dragging = false;
-        const SWIPE_THRESHOLD = 50; // pixels needed to count as swipe
-
-        // mousedown start
-        slider.addEventListener('mousedown', (e) => {
-            startX = e.clientX;
-            dragging = true;
-            // prevent text selection while dragging
-            document.body.style.userSelect = 'none';
-        });
-
-        // mouseup anywhere -> evaluate swipe
-        document.addEventListener('mouseup', (e) => {
-            if (!dragging) return;
-            dragging = false;
-            document.body.style.userSelect = '';
-
-            const endX = e.clientX;
-            const diff = startX - endX;
-            const currentIndex = radios.findIndex(r => r.checked);
-
-            if (diff > SWIPE_THRESHOLD && currentIndex < radios.length - 1) {
-            // swipe left -> next
-            radios[currentIndex + 1].checked = true;
-            } else if (diff < -SWIPE_THRESHOLD && currentIndex > 0) {
-            // swipe right -> previous
-            radios[currentIndex - 1].checked = true;
-            }
-        });
-
-        // TouchScreen
-         slider.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].clientX;
-            dragging = true;
-        });
-
-        slider.addEventListener('touchend', (e) => {
-            if (!dragging) return;
-            dragging = false;
-
-            const endX = e.changedTouches[0].clientX;
-            const diff = startX - endX;
-            const currentIndex = radios.findIndex(r => r.checked);
-
-            if (diff > SWIPE_THRESHOLD && currentIndex < radios.length - 1) {
-                // swipe left -> next
-                radios[currentIndex + 1].checked = true;
-            } else if (diff < -SWIPE_THRESHOLD && currentIndex > 0) {
-                // swipe right -> previous
-                radios[currentIndex - 1].checked = true;
-            }
-        });
-
-        // Prevent accidental drag of images interfering with mousedown
-        document.querySelectorAll('.slides img').forEach(img => {
-            img.addEventListener('dragstart', (ev) => ev.preventDefault());
-        });
-        })();
-
-        function toggleReply(el) {
-            // find the reply div inside the same comment
-            const replyBox = el.closest('.each_comment').querySelector('.reply');
-
-            if (replyBox.style.display === 'none' || replyBox.style.display === '') {
-                replyBox.style.display = 'block';  // show
-            } else {
-                replyBox.style.display = 'none';   // hide
-            }
-        }
-
-        function toggleReply(el) {
-            const comment = el.closest('.each_comment');
-            const replyBox = comment.querySelector('.reply');
-            const addReplyBox = comment.querySelector('.addReplyBox');
-
-            // toggle reply list visibility
-            if (replyBox.style.display === 'none' || replyBox.style.display === '') {
-                replyBox.style.display = 'block';
-                addReplyBox.style.display = 'block'; // show reply form too
-            } else {
-                replyBox.style.display = 'none';
-                addReplyBox.style.display = 'none';
-            }
-        }
-
-        function showToast(message) {
-            let toast = document.getElementById("toast");
-            toast.innerText = message;
-            toast.className = "show";
-            setTimeout(() => {
-                toast.className = toast.className.replace("show", "");
-            }, 3000);
-        }
-
-        function scrollToBottom() {
-            const commentList = document.getElementById("commentList");
-            if (!commentList) return;
-
-            let attempts = 0;
-            const interval = setInterval(() => {
-                commentList.scrollTo({
-                    top: commentList.scrollHeight,
-                    behavior: "smooth"
-                });
-                attempts++;
-                if (attempts > 5) clearInterval(interval);
-            }, 100);
-        }
-
-        window.addEventListener("load", scrollToBottom);
-        document.querySelector("#commentForm textarea").addEventListener("focus", () => {
-            setTimeout(scrollToBottom, 300);
-        });
-
-        document.getElementById("commentForm").addEventListener("submit", function(e) {
-            e.preventDefault();
-
-            let formData = new FormData(this);
-
-            fetch("save.php", {
-                method: "POST",
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    showToast("✅ Your comment has been submitted and is awaiting admin approval.");
-                    document.querySelector("#commentForm textarea").value = "";
-                } else {
-                    showToast("⚠️ Error!");
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                showToast("❌ Failed to send comment.");
-            });
-        });
-
-        // Handle Reply Submit
-        document.querySelectorAll(".addReplyBox").forEach(form => {
-            form.addEventListener("submit", function(e) {
-                e.preventDefault();
-
-                let formData = new FormData(this);
-
-                fetch("save.php", {
-                    method: "POST",
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        showToast("✅ " + data.message);
-                        this.querySelector("textarea").value = "";
-                        this.style.display = "none"; // hide reply box after submit
-                    } else {
-                        showToast("⚠️ Error!");
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    showToast("❌ Failed to send reply.");
-                });
-            });
-        });
-
-        document.querySelectorAll(".addReplyBox textarea").forEach(textarea => {
-            textarea.addEventListener("focus", () => {
-                const commentBox = document.getElementById("addCommentBox");
-                if (commentBox) commentBox.style.display = "none";
-            });
-
-            textarea.addEventListener("blur", () => {
-                const commentBox = document.getElementById("addCommentBox");
-                if (commentBox) commentBox.style.display = "block";
-            });
-        });
-
         document.addEventListener("DOMContentLoaded", () => {
-            const mediaElements = document.querySelectorAll("audio, video");
-            const slideRadios = document.querySelectorAll('.slider input[name="slide"]');
 
-            // Ensure no autoplay
-            mediaElements.forEach(media => {
-                media.autoplay = false;
-                media.pause();
-                media.currentTime = 0;
-            });
+            /* ---------------- TOAST ---------------- */
+            const showToast = (msg) => {
+                const toast = document.getElementById("toast");
+                if (!toast) return;
+                toast.textContent = msg;
+                toast.classList.add("show");
+                setTimeout(() => toast.classList.remove("show"), 3000);
+            };
 
-            // When slide changes, stop all audio/video
-            slideRadios.forEach(radio => {
-                radio.addEventListener('change', () => {
-                    mediaElements.forEach(media => {
-                        media.pause();
-                        media.currentTime = 0; // reset position
-                    });
+            /* ---------------- SCROLL ---------------- */
+            const scrollToBottom = () => {
+                const list = document.getElementById("commentList");
+                if (!list) return;
+                let tries = 0;
+                const timer = setInterval(() => {
+                list.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
+                if (++tries > 5) clearInterval(timer);
+                }, 100);
+            };
+
+            /* ---------------- MEDIA HANDLING ---------------- */
+            const getAllMedia = () => [...document.querySelectorAll("video, audio")];
+
+            // Pause all media (for swipe or when switching slides)
+            // const stopAllMedia = () => {
+            //     getAllMedia().forEach(m => {
+            //     try { if (!m.paused) m.pause(); } catch (e) {}
+            //     });
+            // };
+
+            // When user manually plays something, pause others
+            getAllMedia().forEach(m => {
+                m.addEventListener("play", () => {
+                getAllMedia().forEach(o => { if (o !== m) o.pause(); });
                 });
             });
 
-            // Also stop all media when user swipes (for touch/mouse)
-            const slider = document.querySelector('.slider');
+            /* ---------------- SLIDER SWIPE ---------------- */
+            const slider = document.querySelector(".slider");
             if (slider) {
-                slider.addEventListener('mouseup', stopAllMedia);
-                slider.addEventListener('touchend', stopAllMedia);
+                const radios = [...slider.querySelectorAll('input[name="slide"]')];
+                const SWIPE_THRESHOLD = 50;
+                let startX = 0, dragging = false;
+
+                const moveToSlide = (dir) => {
+                const idx = radios.findIndex(r => r.checked);
+                if (dir === "next" && idx < radios.length - 1) radios[idx + 1].checked = true;
+                else if (dir === "prev" && idx > 0) radios[idx - 1].checked = true;
+                };
+
+                // Touch (mobile)
+                slider.addEventListener("touchstart", (e) => {
+                const t = e.touches[0];
+                startX = t.clientX;
+                dragging = true;
+                // stopAllMedia();
+                }, { passive: true });
+
+                slider.addEventListener("touchend", (e) => {
+                if (!dragging) return;
+                dragging = false;
+                const endX = e.changedTouches[0].clientX;
+                const diff = startX - endX;
+                if (diff > SWIPE_THRESHOLD) moveToSlide("next");
+                else if (diff < -SWIPE_THRESHOLD) moveToSlide("prev");
+                }, { passive: true });
+
+                // Mouse (desktop)
+                slider.addEventListener("mousedown", e => { startX = e.clientX; dragging = true; });
+                document.addEventListener("mouseup", e => {
+                if (!dragging) return;
+                dragging = false;
+                const diff = startX - e.clientX;
+                if (diff > SWIPE_THRESHOLD) moveToSlide("next");
+                else if (diff < -SWIPE_THRESHOLD) moveToSlide("prev");
+                });
+
+                // Prevent dragging images from interrupting swipe
+                slider.querySelectorAll("img").forEach(img =>
+                img.addEventListener("dragstart", e => e.preventDefault())
+                );
             }
 
-            function stopAllMedia() {
-                mediaElements.forEach(media => {
-                    media.pause();
-                    media.currentTime = 0;
+            /* ---------------- COMMENT SUBMIT ---------------- */
+            const commentForm = document.getElementById("commentForm");
+            if (commentForm) {
+                commentForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                try {
+                    const res = await fetch("save.php", { method: "POST", body: new FormData(commentForm) });
+                    const data = await res.json();
+                    if (data.status === "success") {
+                    showToast("✅ Your comment has been submitted and is awaiting admin approval.");
+                    commentForm.querySelector("textarea").value = "";
+                    } else showToast("⚠️ Error submitting comment.");
+                } catch {
+                    showToast("❌ Failed to send comment.");
+                }
+                });
+
+                commentForm.querySelector("textarea")?.addEventListener("focus", () => {
+                setTimeout(scrollToBottom, 300);
                 });
             }
+
+            /* ---------------- REPLY SUBMIT ---------------- */
+            document.querySelectorAll(".addReplyBox").forEach(form => {
+                form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                try {
+                    const res = await fetch("save.php", { method: "POST", body: new FormData(form) });
+                    const data = await res.json();
+                    if (data.status === "success") {
+                    showToast("✅ " + (data.message || "Reply submitted."));
+                    form.querySelector("textarea").value = "";
+                    form.style.display = "none";
+                    } else showToast("⚠️ Error submitting reply.");
+                } catch {
+                    showToast("❌ Failed to send reply.");
+                }
+                });
+            });
+
+            /* ---------------- TOGGLE REPLY BOX ---------------- */
+            window.toggleReply = (el) => {
+                const comment = el.closest(".each_comment");
+                const replyBox = comment?.querySelector(".reply");
+                const addBox = comment?.querySelector(".addReplyBox");
+                if (!replyBox) return;
+                const show = replyBox.style.display === "none" || replyBox.style.display === "";
+                replyBox.style.display = show ? "block" : "none";
+                if (addBox) addBox.style.display = show ? "block" : "none";
+            };
+
+            /* ---------------- INIT ---------------- */
+            window.addEventListener("load", scrollToBottom);
+            getAllMedia().forEach(m => { m.autoplay = false; m.muted = false; });
+
         });
+
+        // let iosUnlocked = false;
+        // document.body.addEventListener("touchstart", () => {
+        //     if (!iosUnlocked) {
+        //         iosUnlocked = true;
+        //         getAllMedia().forEach(m => {
+        //         const playPromise = m.play();
+        //         if (playPromise) {
+        //             playPromise.then(() => m.pause()).catch(() => {});
+        //         } else {
+        //             try { m.play(); m.pause(); } catch(e) {}
+        //         }
+        //         });
+        //         console.log("iOS media playback unlocked ✅");
+        //     }
+        // }, { once: true, passive: true });
     </script>
 </body>
 </html>
