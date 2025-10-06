@@ -326,7 +326,7 @@ if (isset($_SESSION['student_id'])) {
                         </div>
                     </div>
                     <div class="each_attach" onclick="this.querySelector('input').click()">
-                        <input type="file" id="audioPickerLarge" accept="audio/*"  style="display:none;" multiple>
+                        <input type="file" id="audioPickerLarge" accept="*/*" onchange="checkFileType(this)"  style="display:none;" multiple>
                         <div class="left">
                             <img src="../image/icons/audio.png" alt="">
                             <p>Audio</p>
@@ -353,7 +353,7 @@ if (isset($_SESSION['student_id'])) {
                     <img src="../image/icons/camera.png" alt="">
                 </div>
                 <div class="each_attach" onclick="this.querySelector('input').click()">
-                    <input type="file" id="audioPickerSmall" accept="audio/*"  style="display:none;" multiple>
+                    <input type="file" id="audioPickerSmall" accept="*/*" onchange="checkFileType(this)"  style="display:none;" multiple>
                     <img src="../image/icons/audio.png" alt="">
                 </div>
                 <div class="each_attach">
@@ -565,6 +565,16 @@ if (isset($_SESSION['student_id'])) {
                 showToast("❌ Failed to save post." + data.message, "error");
             });
         });
+
+        function checkFileType(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const allowed = ['audio/mpeg', 'audio/mp4', 'audio/x-m4a'];
+            if (!allowed.includes(file.type)) {
+                showToast('Please upload only audio files (MP3, M4A).');
+                input.value = ''; // reset file input
+            }
+        }
 
         // Initial check
         validateForm();
