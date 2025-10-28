@@ -42,7 +42,7 @@
                 <div class="hero_text">
                     <h1>UNICARE</h1>
                     <p>A Healthier Mind for a Brighter Future.</p>
-                    <button class="btn" onclick="window.location.href='Student/index.php'">Download Now!</button>
+                    <button class="btn" onclick="window.location.href='Student/index.php'">Start Now!</button>
                 </div>
                 <img src="image/features/1.png" alt="">
             </div>
