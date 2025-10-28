@@ -20,7 +20,7 @@
                     <div class="progress-text">2/3</div>
             </div>
 
-            <div class="title">Student</div>
+            <div class="title">Student Balance</div>
 
             <div class="subtitle">What area matters most to you right now?</div>
 
