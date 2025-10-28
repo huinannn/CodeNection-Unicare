@@ -82,6 +82,129 @@
             margin-top: 50px;
         }
 
+        a[x-apple-data-detectors],
+        a[x-apple-data-detectors] *,
+        a[data-detectable="true"],
+        a[href^="tel"],
+        a[href^="mailto"],
+        a[href^="date"] {
+            color: inherit !important;
+            text-decoration: none !important;
+            cursor: default !important;
+        }
+
+        .slider {
+            position: relative;
+        }
+
+        .slider input {
+            display: none;
+        }
+
+        .slides .img {
+            width: 100%;
+            aspect-ratio: 100/110;
+            object-fit: cover;
+        }
+
+        .slides > .media-wrapper {
+            display: none;
+        }
+
+        .slider input[type="radio"]:checked:nth-of-type(1) ~ .slides .media-wrapper:nth-child(1),
+        .slider input[type="radio"]:checked:nth-of-type(2) ~ .slides .media-wrapper:nth-child(2),
+        .slider input[type="radio"]:checked:nth-of-type(3) ~ .slides .media-wrapper:nth-child(3),
+        .slider input[type="radio"]:checked:nth-of-type(4) ~ .slides .media-wrapper:nth-child(4),
+        .slider input[type="radio"]:checked:nth-of-type(5) ~ .slides .media-wrapper:nth-child(5),
+        .slider input[type="radio"]:checked:nth-of-type(6) ~ .slides .media-wrapper:nth-child(6)
+        {
+            display: block;
+        }
+
+        .slider .arrows {
+            position: absolute;
+            top: 60px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            pointer-events: none; /* so arrows don’t block clicks */
+        }
+
+        .slider .arrows button {
+            pointer-events: auto;
+            background: rgba(0,0,0,0.3);
+            border: none;
+            color: white;
+            font-size: 24px;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+        }
+
+        .dots {
+            display: flex;
+            justify-content: center;
+            margin: 8px 0;
+        }
+
+        .dots label {
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            background-color: #aaaaaaff;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: background 0.2s ease;
+        }
+
+        .dots label:hover {
+            background-color: #f6dca8;
+        }
+
+        /* Active dot */
+        .slider input[type="radio"]:checked:nth-of-type(1) ~ .dots label:nth-of-type(1),
+        .slider input[type="radio"]:checked:nth-of-type(2) ~ .dots label:nth-of-type(2),
+        .slider input[type="radio"]:checked:nth-of-type(3) ~ .dots label:nth-of-type(3),
+        .slider input[type="radio"]:checked:nth-of-type(4) ~ .dots label:nth-of-type(4),
+        .slider input[type="radio"]:checked:nth-of-type(5) ~ .dots label:nth-of-type(5),
+        .slider input[type="radio"]:checked:nth-of-type(6) ~ .dots label:nth-of-type(6)
+        {
+            background-color: #f6dca8;
+        }
+
+        .media-wrapper {
+            position: relative;
+            width: 30%;
+        }
+
+        .media-wrapper img,
+        .media-wrapper video {
+            width: 100px;
+            aspect-ratio: 100/110;
+            border-radius: 10px;
+            object-fit: contain;
+        }
+
+        .audio-img {
+            width: 100%;
+            aspect-ratio: 365/400;
+            object-fit: cover;
+            border-radius: 10px;
+            background-color: #f0f0f0;
+        }
+
+        .audio-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .audio-player {
+            width: 100%;
+            border-radius: 8px;
+        }
+
     </style>
 </head>
 <body>
@@ -139,16 +262,102 @@
                 <div class="each_data" data-id="<?php echo $all_row['confession_id']; ?>" data-time="<?php echo $all_row['confession_date_time']; ?>">
                     <div class="content">
                         <div class="each_content">
-                            <!-- Slider not yet implement! -->
                             <?php
-                                if($all_row['confession_post'] !== null) {
-                            ?>
-                            <div class="img">
-                                <img src="../image/confessions/sad/<?php echo $all_row['confession_post'] ?>" alt="">
-                            </div>
-                            <?php
+                                $raw = trim($all_row['confession_post'] ?? '');
+                                $files = [];
+
+                                // 🔹 Case 1: JSON array format
+                                if (str_starts_with($raw, '[')) {
+                                    $decoded = json_decode($raw, true);
+                                    if (is_array($decoded)) {
+                                        $files = array_map('trim', $decoded);
+                                    }
                                 }
-                            ?>
+                                // 🔹 Case 2: Single string
+                                elseif (!empty($raw)) {
+                                    $files = [trim($raw)];
+                                }
+
+                                // Remove empty entries
+                                $files = array_filter($files);
+                                $count = count($files);
+                                ?>
+
+                                <?php if ($count > 0): ?>
+
+                                    <?php if ($count > 1): ?>
+                                        <div class="slider" id="slider-<?php echo $all_row['confession_id']; ?>">
+                                            <?php for ($i = 1; $i <= $count; $i++): ?>
+                                                <input type="radio" name="slide-<?php echo $all_row['confession_id']; ?>" id="img<?php echo $i; ?>-<?php echo $all_row['confession_id']; ?>" <?php if($i===1) echo 'checked'; ?>>
+                                            <?php endfor; ?>
+
+                                            <div class="slides">
+                                                <?php foreach ($files as $file): 
+                                                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                                    $mediaPath = "../image/confessions/sad/" . $file;
+                                                ?>
+                                                <div class="media-wrapper">
+                                                    <?php if (in_array($ext, ['jpg','jpeg','png','gif'])): ?>
+                                                        <img src="<?php echo $mediaPath; ?>" alt="Image">
+                                                    <?php elseif (in_array($ext, ['mp4','mov'])): ?>
+                                                        <video controls playsinline webkit-playsinline muted>
+                                                            <source src="<?php echo $mediaPath; ?>" type="video/mp4">
+                                                            Your browser does not support the video tag.
+                                                        </video>
+                                                    <?php elseif (in_array($ext, ['mp3','m4a'])): ?>
+                                                        <div class="audio-wrapper">
+                                                            <img src="../image/confessions/audio.png" alt="Audio" class="audio-img">
+                                                            <audio controls class="audio-player">
+                                                                <source src="<?php echo $mediaPath; ?>" type="<?php echo $ext==='m4a'?'audio/mp4':'audio/mpeg'; ?>">
+                                                                Your browser does not support the audio tag.
+                                                            </audio>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <p>Unsupported file format: <?php echo htmlspecialchars($ext); ?></p>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                            <div class="arrows">
+                                                <button class="prev">&#10094;</button>
+                                                <button class="next">&#10095;</button>
+                                            </div>
+                                            <div class="dots">
+                                                <?php for ($i = 1; $i <= $count; $i++): ?>
+                                                    <label for="img<?php echo $i; ?>-<?php echo $all_row['confession_id']; ?>"></label>
+                                                <?php endfor; ?>
+                                            </div>
+                                        </div>
+                                    <?php else: ?>
+                                        <?php 
+                                            $file = $files[0];
+                                            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                            $mediaPath = "../image/confessions/sad/" . $file;
+                                        ?>
+                                        <div class="media-wrapper">
+                                            <?php if (in_array($ext, ['jpg','jpeg','png','gif'])): ?>
+                                                <img src="<?php echo $mediaPath; ?>" alt="Image">
+                                            <?php elseif (in_array($ext, ['mp4','mov'])): ?>
+                                                <video controls playsinline webkit-playsinline muted>
+                                                    <source src="<?php echo $mediaPath; ?>" type="video/mp4">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            <?php elseif (in_array($ext, ['mp3','m4a'])): ?>
+                                                <div class="audio-wrapper">
+                                                    <img src="../image/confessions/audio.png" alt="Audio" class="audio-img">
+                                                    <audio controls class="audio-player">
+                                                        <source src="<?php echo $mediaPath; ?>" type="<?php echo $ext==='m4a'?'audio/mp4':'audio/mpeg'; ?>">
+                                                        Your browser does not support the audio tag.
+                                                    </audio>
+                                                </div>
+                                            <?php else: ?>
+                                                <p>Unsupported file format: <?php echo htmlspecialchars($ext); ?></p>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
+                            <?php else: ?>
+                                <img src="../image/confessions/text.png" alt="">
+                            <?php endif; ?>
                             <div class="description">
                                 <h1><?php echo $all_row['confession_title'] ?></h1>
                                 <p><?php echo $all_row['confession_message'] ?></p>
@@ -216,16 +425,102 @@
                 <div class="each_data" data-id="<?php echo $pending_row['confession_id']; ?>" data-time="<?php echo $pending_row['confession_date_time']; ?>">
                     <div class="content">
                         <div class="each_content">
-                            <!-- Slider not yet implement! -->
                             <?php
-                                if($pending_row['confession_post'] !== null) {
-                            ?>
-                            <div class="img">
-                                <img src="../image/confessions/sad/<?php echo $pending_row['confession_post'] ?>" alt="">
-                            </div>
-                            <?php
+                                $raw = trim($pending_row['confession_post'] ?? '');
+                                $files = [];
+
+                                // 🔹 Case 1: JSON array format
+                                if (str_starts_with($raw, '[')) {
+                                    $decoded = json_decode($raw, true);
+                                    if (is_array($decoded)) {
+                                        $files = array_map('trim', $decoded);
+                                    }
                                 }
-                            ?>
+                                // 🔹 Case 2: Single string
+                                elseif (!empty($raw)) {
+                                    $files = [trim($raw)];
+                                }
+
+                                // Remove empty entries
+                                $files = array_filter($files);
+                                $count = count($files);
+                                ?>
+
+                                <?php if ($count > 0): ?>
+
+                                    <?php if ($count > 1): ?>
+                                        <div class="slider" id="slider-<?php echo $pending_row['confession_id']; ?>">
+                                            <?php for ($i = 1; $i <= $count; $i++): ?>
+                                                <input type="radio" name="slide-<?php echo $pending_row['confession_id']; ?>" id="img<?php echo $i; ?>-<?php echo $pending_row['confession_id']; ?>" <?php if($i===1) echo 'checked'; ?>>
+                                            <?php endfor; ?>
+
+                                            <div class="slides">
+                                                <?php foreach ($files as $file): 
+                                                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                                    $mediaPath = "../image/confessions/sad/" . $file;
+                                                ?>
+                                                <div class="media-wrapper">
+                                                    <?php if (in_array($ext, ['jpg','jpeg','png','gif'])): ?>
+                                                        <img src="<?php echo $mediaPath; ?>" alt="Image">
+                                                    <?php elseif (in_array($ext, ['mp4','mov'])): ?>
+                                                        <video controls playsinline webkit-playsinline muted>
+                                                            <source src="<?php echo $mediaPath; ?>" type="video/mp4">
+                                                            Your browser does not support the video tag.
+                                                        </video>
+                                                    <?php elseif (in_array($ext, ['mp3','m4a'])): ?>
+                                                        <div class="audio-wrapper">
+                                                            <img src="../image/confessions/audio.png" alt="Audio" class="audio-img">
+                                                            <audio controls class="audio-player">
+                                                                <source src="<?php echo $mediaPath; ?>" type="<?php echo $ext==='m4a'?'audio/mp4':'audio/mpeg'; ?>">
+                                                                Your browser does not support the audio tag.
+                                                            </audio>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <p>Unsupported file format: <?php echo htmlspecialchars($ext); ?></p>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                            <div class="arrows">
+                                                <button class="prev">&#10094;</button>
+                                                <button class="next">&#10095;</button>
+                                            </div>
+                                            <div class="dots">
+                                                <?php for ($i = 1; $i <= $count; $i++): ?>
+                                                    <label for="img<?php echo $i; ?>-<?php echo $pending_row['confession_id']; ?>"></label>
+                                                <?php endfor; ?>
+                                            </div>
+                                        </div>
+                                    <?php else: ?>
+                                        <?php 
+                                            $file = $files[0];
+                                            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                            $mediaPath = "../image/confessions/sad/" . $file;
+                                        ?>
+                                        <div class="media-wrapper">
+                                            <?php if (in_array($ext, ['jpg','jpeg','png','gif'])): ?>
+                                                <img src="<?php echo $mediaPath; ?>" alt="Image">
+                                            <?php elseif (in_array($ext, ['mp4','mov'])): ?>
+                                                <video controls playsinline webkit-playsinline muted>
+                                                    <source src="<?php echo $mediaPath; ?>" type="video/mp4">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            <?php elseif (in_array($ext, ['mp3','m4a'])): ?>
+                                                <div class="audio-wrapper">
+                                                    <img src="../image/confessions/audio.png" alt="Audio" class="audio-img">
+                                                    <audio controls class="audio-player">
+                                                        <source src="<?php echo $mediaPath; ?>" type="<?php echo $ext==='m4a'?'audio/mp4':'audio/mpeg'; ?>">
+                                                        Your browser does not support the audio tag.
+                                                    </audio>
+                                                </div>
+                                            <?php else: ?>
+                                                <p>Unsupported file format: <?php echo htmlspecialchars($ext); ?></p>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
+                            <?php else: ?>
+                                <img src="../image/confessions/text.png" alt="">
+                            <?php endif; ?>
                             <div class="description">
                                 <h1><?php echo $pending_row['confession_title'] ?></h1>
                                 <p><?php echo $pending_row['confession_message'] ?></p>
@@ -300,16 +595,102 @@
                 <div class="each_data" data-id="<?php echo $approved_row['confession_id']; ?>" data-time="<?php echo $approved_row['confession_date_time']; ?>">
                     <div class="content">
                         <div class="each_content">
-                            <!-- Slider not yet implement! -->
                             <?php
-                                if($approved_row['confession_post'] !== null) {
-                            ?>
-                            <div class="img">
-                                <img src="../image/confessions/sad/<?php echo $approved_row['confession_post'] ?>" alt="">
-                            </div>
-                            <?php
+                                $raw = trim($approved_row['confession_post'] ?? '');
+                                $files = [];
+
+                                // 🔹 Case 1: JSON array format
+                                if (str_starts_with($raw, '[')) {
+                                    $decoded = json_decode($raw, true);
+                                    if (is_array($decoded)) {
+                                        $files = array_map('trim', $decoded);
+                                    }
                                 }
-                            ?>
+                                // 🔹 Case 2: Single string
+                                elseif (!empty($raw)) {
+                                    $files = [trim($raw)];
+                                }
+
+                                // Remove empty entries
+                                $files = array_filter($files);
+                                $count = count($files);
+                                ?>
+
+                                <?php if ($count > 0): ?>
+
+                                    <?php if ($count > 1): ?>
+                                        <div class="slider" id="slider-<?php echo $approved_row['confession_id']; ?>">
+                                            <?php for ($i = 1; $i <= $count; $i++): ?>
+                                                <input type="radio" name="slide-<?php echo $approved_row['confession_id']; ?>" id="img<?php echo $i; ?>-<?php echo $approved_row['confession_id']; ?>" <?php if($i===1) echo 'checked'; ?>>
+                                            <?php endfor; ?>
+
+                                            <div class="slides">
+                                                <?php foreach ($files as $file): 
+                                                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                                    $mediaPath = "../image/confessions/sad/" . $file;
+                                                ?>
+                                                <div class="media-wrapper">
+                                                    <?php if (in_array($ext, ['jpg','jpeg','png','gif'])): ?>
+                                                        <img src="<?php echo $mediaPath; ?>" alt="Image">
+                                                    <?php elseif (in_array($ext, ['mp4','mov'])): ?>
+                                                        <video controls playsinline webkit-playsinline muted>
+                                                            <source src="<?php echo $mediaPath; ?>" type="video/mp4">
+                                                            Your browser does not support the video tag.
+                                                        </video>
+                                                    <?php elseif (in_array($ext, ['mp3','m4a'])): ?>
+                                                        <div class="audio-wrapper">
+                                                            <img src="../image/confessions/audio.png" alt="Audio" class="audio-img">
+                                                            <audio controls class="audio-player">
+                                                                <source src="<?php echo $mediaPath; ?>" type="<?php echo $ext==='m4a'?'audio/mp4':'audio/mpeg'; ?>">
+                                                                Your browser does not support the audio tag.
+                                                            </audio>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <p>Unsupported file format: <?php echo htmlspecialchars($ext); ?></p>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                            <div class="arrows">
+                                                <button class="prev">&#10094;</button>
+                                                <button class="next">&#10095;</button>
+                                            </div>
+                                            <div class="dots">
+                                                <?php for ($i = 1; $i <= $count; $i++): ?>
+                                                    <label for="img<?php echo $i; ?>-<?php echo $approved_row['confession_id']; ?>"></label>
+                                                <?php endfor; ?>
+                                            </div>
+                                        </div>
+                                    <?php else: ?>
+                                        <?php 
+                                            $file = $files[0];
+                                            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                            $mediaPath = "../image/confessions/sad/" . $file;
+                                        ?>
+                                        <div class="media-wrapper">
+                                            <?php if (in_array($ext, ['jpg','jpeg','png','gif'])): ?>
+                                                <img src="<?php echo $mediaPath; ?>" alt="Image">
+                                            <?php elseif (in_array($ext, ['mp4','mov'])): ?>
+                                                <video controls playsinline webkit-playsinline muted>
+                                                    <source src="<?php echo $mediaPath; ?>" type="video/mp4">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            <?php elseif (in_array($ext, ['mp3','m4a'])): ?>
+                                                <div class="audio-wrapper">
+                                                    <img src="../image/confessions/audio.png" alt="Audio" class="audio-img">
+                                                    <audio controls class="audio-player">
+                                                        <source src="<?php echo $mediaPath; ?>" type="<?php echo $ext==='m4a'?'audio/mp4':'audio/mpeg'; ?>">
+                                                        Your browser does not support the audio tag.
+                                                    </audio>
+                                                </div>
+                                            <?php else: ?>
+                                                <p>Unsupported file format: <?php echo htmlspecialchars($ext); ?></p>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
+                            <?php else: ?>
+                                <img src="../image/confessions/text.png" alt="">
+                            <?php endif; ?>
                             <div class="description">
                                 <h1><?php echo $approved_row['confession_title'] ?></h1>
                                 <p><?php echo $approved_row['confession_message'] ?></p>
@@ -384,16 +765,102 @@
                 <div class="each_data" data-id="<?php echo $rejected_row['confession_id']; ?>" data-time="<?php echo $rejected_row['confession_date_time']; ?>">
                     <div class="content">
                         <div class="each_content">
-                            <!-- Slider not yet implement! -->
                             <?php
-                                if($rejected_row['confession_post'] !== null) {
-                            ?>
-                            <div class="img">
-                                <img src="../image/confessions/sad/<?php echo $rejected_row['confession_post'] ?>" alt="">
-                            </div>
-                            <?php
+                                $raw = trim($rejected_row['confession_post'] ?? '');
+                                $files = [];
+
+                                // 🔹 Case 1: JSON array format
+                                if (str_starts_with($raw, '[')) {
+                                    $decoded = json_decode($raw, true);
+                                    if (is_array($decoded)) {
+                                        $files = array_map('trim', $decoded);
+                                    }
                                 }
-                            ?>
+                                // 🔹 Case 2: Single string
+                                elseif (!empty($raw)) {
+                                    $files = [trim($raw)];
+                                }
+
+                                // Remove empty entries
+                                $files = array_filter($files);
+                                $count = count($files);
+                                ?>
+
+                                <?php if ($count > 0): ?>
+
+                                    <?php if ($count > 1): ?>
+                                        <div class="slider" id="slider-<?php echo $rejected_row['confession_id']; ?>">
+                                            <?php for ($i = 1; $i <= $count; $i++): ?>
+                                                <input type="radio" name="slide-<?php echo $rejected_row['confession_id']; ?>" id="img<?php echo $i; ?>-<?php echo $rejected_row['confession_id']; ?>" <?php if($i===1) echo 'checked'; ?>>
+                                            <?php endfor; ?>
+
+                                            <div class="slides">
+                                                <?php foreach ($files as $file): 
+                                                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                                    $mediaPath = "../image/confessions/sad/" . $file;
+                                                ?>
+                                                <div class="media-wrapper">
+                                                    <?php if (in_array($ext, ['jpg','jpeg','png','gif'])): ?>
+                                                        <img src="<?php echo $mediaPath; ?>" alt="Image">
+                                                    <?php elseif (in_array($ext, ['mp4','mov'])): ?>
+                                                        <video controls playsinline webkit-playsinline muted>
+                                                            <source src="<?php echo $mediaPath; ?>" type="video/mp4">
+                                                            Your browser does not support the video tag.
+                                                        </video>
+                                                    <?php elseif (in_array($ext, ['mp3','m4a'])): ?>
+                                                        <div class="audio-wrapper">
+                                                            <img src="../image/confessions/audio.png" alt="Audio" class="audio-img">
+                                                            <audio controls class="audio-player">
+                                                                <source src="<?php echo $mediaPath; ?>" type="<?php echo $ext==='m4a'?'audio/mp4':'audio/mpeg'; ?>">
+                                                                Your browser does not support the audio tag.
+                                                            </audio>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <p>Unsupported file format: <?php echo htmlspecialchars($ext); ?></p>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                            <div class="arrows">
+                                                <button class="prev">&#10094;</button>
+                                                <button class="next">&#10095;</button>
+                                            </div>
+                                            <div class="dots">
+                                                <?php for ($i = 1; $i <= $count; $i++): ?>
+                                                    <label for="img<?php echo $i; ?>-<?php echo $rejected_row['confession_id']; ?>"></label>
+                                                <?php endfor; ?>
+                                            </div>
+                                        </div>
+                                    <?php else: ?>
+                                        <?php 
+                                            $file = $files[0];
+                                            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                            $mediaPath = "../image/confessions/sad/" . $file;
+                                        ?>
+                                        <div class="media-wrapper">
+                                            <?php if (in_array($ext, ['jpg','jpeg','png','gif'])): ?>
+                                                <img src="<?php echo $mediaPath; ?>" alt="Image">
+                                            <?php elseif (in_array($ext, ['mp4','mov'])): ?>
+                                                <video controls playsinline webkit-playsinline muted>
+                                                    <source src="<?php echo $mediaPath; ?>" type="video/mp4">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            <?php elseif (in_array($ext, ['mp3','m4a'])): ?>
+                                                <div class="audio-wrapper">
+                                                    <img src="../image/confessions/audio.png" alt="Audio" class="audio-img">
+                                                    <audio controls class="audio-player">
+                                                        <source src="<?php echo $mediaPath; ?>" type="<?php echo $ext==='m4a'?'audio/mp4':'audio/mpeg'; ?>">
+                                                        Your browser does not support the audio tag.
+                                                    </audio>
+                                                </div>
+                                            <?php else: ?>
+                                                <p>Unsupported file format: <?php echo htmlspecialchars($ext); ?></p>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
+                            <?php else: ?>
+                                <img src="../image/confessions/text.png" alt="">
+                            <?php endif; ?>
                             <div class="description">
                                 <h1><?php echo $rejected_row['confession_title'] ?></h1>
                                 <p><?php echo $rejected_row['confession_message'] ?></p>
@@ -603,6 +1070,57 @@
                         alert('AJAX request failed');
                     });
                 }
+            });
+
+            function initSlider(slider) {
+                const slides = slider.querySelectorAll(".media-wrapper");
+                const dots = slider.querySelectorAll(".dots label");
+                const prevBtn = slider.querySelector(".prev");
+                const nextBtn = slider.querySelector(".next");
+
+                if (slides.length === 0) return;
+
+                let currentIndex = 0;
+
+                function showSlide(index) {
+                    currentIndex = index;
+                    slides.forEach((slide, i) => slide.style.display = i === index ? "block" : "none");
+                    dots.forEach((dot, i) => dot.style.backgroundColor = i === index ? "#f6dca8" : "#aaaaaaff");
+                }
+
+                showSlide(0);
+
+                // Dots click
+                dots.forEach((dot, i) => {
+                    dot.addEventListener("click", () => showSlide(i));
+                });
+
+                // Arrow clicks
+                if (prevBtn) prevBtn.addEventListener("click", () => {
+                    currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+                    showSlide(currentIndex);
+                });
+
+                if (nextBtn) nextBtn.addEventListener("click", () => {
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    showSlide(currentIndex);
+                });
+            }
+
+            document.querySelectorAll(".slider").forEach(initSlider);
+
+            // Tabs logic
+            const tabButtons = document.querySelectorAll(".each_sort");
+            tabButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    const status = button.dataset.filter;
+                    document.querySelectorAll(".table_data").forEach(td => {
+                        td.style.display = td.dataset.status === status ? "block" : "none";
+                    });
+                    document.querySelectorAll(`.table_data[data-status="${status}"] .slider`).forEach(initSlider);
+                    tabButtons.forEach(b => b.classList.remove("active"));
+                    button.classList.add("active");
+                });
             });
 
             updatePendingCount();
